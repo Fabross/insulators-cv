@@ -2,18 +2,22 @@ import cv2
 import mahotas
 
 class Pre_processing:
-    def __init__(self, image_path: str):
+    def __init__(self, image_path: str, scale_percent: int = 20):
         self.img = cv2.imread(image_path)
+        self.scale_percent = scale_percent
 
-    def operate(self):
+    def operate(self, resize_only: bool = False):
         self.resize_input()
-        self.filters_step()
-        self.results = [self.adap_thresh, self.bin_thresh, self.canny, self.othresh, self.sobel]
+        if resize_only:
+            self.results = [self.resized_img]
+        else:
+            self.filters_step()
+            self.results = [self.adap_thresh, self.bin_thresh, self.canny, self.othresh, self.sobel]
         return self.results
         
-    def resize_input(self, scale_percent: int = 20):
-        width = self.img.shape[1] * scale_percent // 100
-        height = self.img.shape[0] * scale_percent // 100
+    def resize_input(self):
+        width = self.img.shape[1] * self.scale_percent // 100
+        height = self.img.shape[0] * self.scale_percent // 100
         self.resized_img = cv2.resize(self.img, (width, height), interpolation = cv2.INTER_AREA)
 
     def filters_step(self, **kwargs) -> None:

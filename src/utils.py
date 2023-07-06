@@ -3,7 +3,10 @@ from .pre_processing import Pre_processing
 import os
 import numpy as np
 
-def load_data(data_dir = '../InsulatorsDataSet/'):
+def load_data(data_dir = '../InsulatorsDataSet/',
+    reshape : bool = True,
+    scale_percent : int = 20,
+    resize_only : bool =False):
     """Return dataset preprocessed
 
     Parameters
@@ -28,10 +31,16 @@ def load_data(data_dir = '../InsulatorsDataSet/'):
         for insulators_dir in os.listdir(data_dir+idx+' Extraction'):
             for img in os.listdir(data_dir+idx+' Extraction/'+insulators_dir):
                 if img.split("_")[1] == "35.jpg":
-                    pre_processing = Pre_processing(data_dir+idx+' Extraction/'+insulators_dir+"/"+img)
-                    pre_processing.operate()
+                    pre_processing = Pre_processing(image_path=data_dir+idx+' Extraction/'+insulators_dir+"/"+img, scale_percent=scale_percent)
+                    pre_processing.operate(resize_only)
                     for result in pre_processing.results:
-                        img_data.append(result.reshape(-1))
+                        if reshape:
+                            img_data.append(result.reshape(-1))
+                        else:
+                            img_data.append(result)
                     img_path += [data_dir+idx+' Extraction/'+insulators_dir+"/"+img]*5
-                    labels += [kaolin]*5
+                    if resize_only:
+                        labels += [kaolin]
+                    else:
+                        labels += [kaolin]*5
     return img_data, labels
